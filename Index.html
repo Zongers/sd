@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale Divider | Workflow</title>
+    <link rel="icon" href="https://i.ibb.co/W48rv8hd/icon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #98cc4e;
+            --secondary: #fb0088;
+            --light: #FFFFFF;
+            --dark: #292929;
+            --bg: #F7F7F7;
+            --border: #e0e0e0;
+            --pink: #ffd6e7;
+            --header-green: #e8f5e9;
+            --party-a: #e3f2fd;
+            --party-b: #fff8e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .spreadsheet-container {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 1200px;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            position:relative;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .paste-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .paste-area {
+            width: 100%;
+            height: 200px;
+            max-height: 300px;
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            font-family: monospace;
+            overflow-y: auto;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+
+        .paste-area:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .paste-icon {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: var(--primary);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .paste-icon:hover {
+            background: var(--secondary);
+        }
+
+        .output-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .output-container {
+            position: relative;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .output-title {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .party-a .output-title {
+            background-color: var(--party-a);
+        }
+
+        .party-b .output-title {
+            background-color: var(--party-b);
+        }
+
+        .stats-container {
+            background-color: #ffd6e7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            width: 100%;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .stats-row {
+            display: flex;
+            margin-bottom: 0.5rem;
+            align-items: baseline;
+        }
+
+        .stats-label {
+            flex: 1;
+        }
+
+        .stats-value {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1rem;
+            table-layout: fixed;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: left;
+            min-width: 100px;
+            word-wrap: break-word;
+        }
+
+        th {
+            background-color: var(--header-green);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            background-color: white;
+            min-height: 1.5em;
+        }
+
+        .party-a table td {
+            background-color: var(--party-a);
+        }
+
+        .party-b table td {
+            background-color: var(--party-b);
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .output-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .copy-tick {
+            position:absolute;
+            right: 0px;
+            top: 0px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 100%;
+            padding: 4px;
+            color: white;
+            display: none;
+        }
+
+        /* Animation for processing */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .processing {
+            animation: pulse 1.5s infinite;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-calculator"></i> Sale Divider</h1>
+        <p>Divide packages equally between two parties</p>
+    </div>
+
+    <div class="spreadsheet-container">
+        <div class="toolbar">
+            <button class="btn btn-primary" id="processBtn">
+                <i class="fas fa-cogs"></i> Divide
+            </button>
+            <button class="btn btn-danger" id="clearBtn">
+                <i class="fas fa-trash-alt"></i> Clear
+            </button>
+        </div>
+
+        <div class="paste-container">
+            <textarea class="paste-area" id="inputData" placeholder="Paste your packages data here..."></textarea>
+            <div class="paste-icon" id="pasteBtn">
+                <i class="fas fa-paste"></i> Paste
+            </div>
+        </div>
+
+        <div id="progressContainer" class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Processing: 0%</div>
+        </div>
+
+        <div class="stats-container" id="statsContainer">
+            <div class="stats-row">
+                <span class="stats-label">Total Packages:</span>
+                <span class="stats-value" id="totalRecords">0</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Party A Packages:</span>
+                <span class="stats-value" id="partyARecords">0</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Party B Packages:</span>
+                <span class="stats-value" id="partyBRecords">0</span>
+            </div>
+        </div>
+
+        <div class="output-section">
+            <div class="output-container party-a">
+                <div class="output-header">
+                    <h3>Party A</h3>
+                    <button class="btn btn-primary" id="copyPartyABtn">
+                        <i class="fas fa-copy"></i> Copy
+                        <span class="copy-tick"><i class="fas fa-check"></i></span>
+                    </button>
+                </div>
+                <input type="text" class="output-title" id="partyATitle" placeholder="Enter title for Party A">
+                <div id="tableContainerA">
+                    <table id="dataTableA">
+                        <tbody>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr><td>&nbsp;</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="output-container party-b">
+                <div class="output-header">
+                    <h3>Party B</h3>
+                    <button class="btn btn-primary" id="copyPartyBBtn">
+                        <i class="fas fa-copy"></i> Copy
+                        <span class="copy-tick"><i class="fas fa-check"></i></span>
+                    </button>
+                </div>
+                <input type="text" class="output-title" id="partyBTitle" placeholder="Enter title for Party B">
+                <div id="tableContainerB">
+                    <table id="dataTableB">
+                        <tbody>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr><td>&nbsp;</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check"></i> Text pasted!
+    </div>
+
+    <footer>
+        © Workflow 2025-26 | Data is processed in your browser only (not saved to server)
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const inputData = document.getElementById('inputData');
+            const processBtn = document.getElementById('processBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const pasteBtn = document.getElementById('pasteBtn');
+            const copyPartyABtn = document.getElementById('copyPartyABtn');
+            const copyPartyBBtn = document.getElementById('copyPartyBBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const statsContainer = document.getElementById('statsContainer');
+            const totalRecords = document.getElementById('totalRecords');
+            const partyARecords = document.getElementById('partyARecords');
+            const partyBRecords = document.getElementById('partyBRecords');
+            const dataTableA = document.getElementById('dataTableA');
+            const dataTableB = document.getElementById('dataTableB');
+            const partyATitle = document.getElementById('partyATitle');
+            const partyBTitle = document.getElementById('partyBTitle');
+            const notification = document.getElementById('notification');
+            
+            // Package priority order (high to low)
+            const packagePriority = [
+                "[95006403]MY4",
+                "[95005522]My3",
+                "[95005362]MY5",
+                "[95006482]Monthly Pro Max Basic",
+                "[95004548]Monthly Pro Max Plus",
+                "[95004023]Monthly Digital Max Plus",
+                "[95003646]Monthly Pro Plus",
+                "[95006483]Monthly Digital Max Basic",
+                "[95005342]Monthly Supreme Plus",
+                "[91023604]Supreme Offer",
+                "[91020067]Monthly Premium 40GB",
+                "[91000182]Zong Super Card",
+                "[95004643]Prepaid MBB Monthly Flat 200GB",
+                "[91026118]Prepaid MBB Monthly 80GB +80GB (4am-4pm)",
+                "[91026124]Prepaid MBB Monthly 65GB"
+            ];
+            
+            // Event Listeners
+            pasteBtn.addEventListener('click', handlePaste);
+            processBtn.addEventListener('click', processData);
+            clearBtn.addEventListener('click', clearAll);
+            copyPartyABtn.addEventListener('click', () => copyOutput('A'));
+            copyPartyBBtn.addEventListener('click', () => copyOutput('B'));
+            
+            // Functions
+            function showNotification(message) {
+                notification.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 2000);
+            }
+            
+            function handlePaste() {
+                navigator.clipboard.readText()
+                    .then(text => {
+                        inputData.value = text;
+                        showNotification('Text pasted!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to read clipboard contents: ', err);
+                        inputData.focus();
+                        showNotification('Please use Ctrl+V to paste');
+                    });
+            }
+            
+            function clearAll() {
+                if (confirm('Are you sure you want to clear all data?')) {
+                    inputData.value = '';
+                    dataTableA.querySelector('tbody').innerHTML = '';
+                    dataTableB.querySelector('tbody').innerHTML = '';
+                    partyATitle.value = '';
+                    partyBTitle.value = '';
+                    statsContainer.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    totalRecords.textContent = '0';
+                    partyARecords.textContent = '0';
+                    partyBRecords.textContent = '0';
+                    
+                    // Add empty rows
+                    const tbodyA = dataTableA.querySelector('tbody');
+                    const tbodyB = dataTableB.querySelector('tbody');
+                    for (let i = 0; i < 3; i++) {
+                        const rowA = document.createElement('tr');
+                        const rowB = document.createElement('tr');
+                        const tdA = document.createElement('td');
+                        const tdB = document.createElement('td');
+                        tdA.innerHTML = '&nbsp;';
+                        tdB.innerHTML = '&nbsp;';
+                        rowA.appendChild(tdA);
+                        rowB.appendChild(tdB);
+                        tbodyA.appendChild(rowA);
+                        tbodyB.appendChild(rowB);
+                    }
+                }
+            }
+            
+            function copyOutput(party) {
+                const table = party === 'A' ? dataTableA : dataTableB;
+                const title = party === 'A' ? partyATitle.value : partyBTitle.value;
+                
+                // Get all rows
+                const rows = Array.from(table.querySelectorAll('tr'));
+                let text = title ? title + '\n' : '';
+                
+                rows.forEach(row => {
+                    const cells = Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim());
+                    if (cells[0] && cells[0] !== '&nbsp;' && cells[0] !== '') {
+                        text += cells.join('\t') + '\n';
+                    }
+                });
+
+                if (!text.trim()) {
+                    showNotification('No data to copy');
+                    return;
+                }
+
+                navigator.clipboard.writeText(text).then(() => {
+                    const tick = party === 'A' 
+                        ? copyPartyABtn.querySelector('.copy-tick') 
+                        : copyPartyBBtn.querySelector('.copy-tick');
+                    tick.style.display = 'inline-block';
+                    setTimeout(() => {
+                        tick.style.display = 'none';
+                    }, 2000);
+                    showNotification(`Party ${party} data copied!`);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    showNotification('Failed to copy data');
+                });
+            }
+            
+            function processData() {
+                const rawData = inputData.value.trim();
+                if (!rawData) {
+                    showNotification('Please paste some data first');
+                    return;
+                }
+                
+                // Show progress bar
+                progressContainer.style.display = 'block';
+                processBtn.disabled = true;
+                processBtn.classList.add('processing');
+                
+                // Process in chunks to prevent UI freezing
+                setTimeout(() => {
+                    const lines = rawData.split('\n');
+                    const packages = [];
+                    let totalLines = lines.length;
+                    let processedLines = 0;
+                    
+                    // Process all lines (no skipping first row)
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) {
+                            processedLines++;
+                            updateProgress(processedLines, totalLines);
+                            continue;
+                        }
+                        
+                        // Split by tab or comma
+                        const columns = line.split(/\t|,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
+                        
+                        // Get package name (assuming it's in column B)
+                        if (columns.length >= 2) {
+                            const packageName = columns[1].trim().replace(/^"|"$/g, '');
+                            packages.push({
+                                raw: line,
+                                package: packageName,
+                                priority: packagePriority.findIndex(pkg => packageName.includes(pkg))
+                            });
+                        } else {
+                            // If no package found, still include the row with lowest priority
+                            packages.push({
+                                raw: line,
+                                package: '',
+                                priority: packagePriority.length
+                            });
+                        }
+                        
+                        processedLines++;
+                        updateProgress(processedLines, totalLines);
+                    }
+                    
+                    // Sort packages by priority (high to low)
+                    packages.sort((a, b) => {
+                        return a.priority - b.priority;
+                    });
+                    
+                    // Divide packages between two parties
+                    const partyA = [];
+                    const partyB = [];
+                    
+                    for (let i = 0; i < packages.length; i++) {
+                        // Alternate between parties, giving priority to Party A for odd counts
+                        if (i % 2 === 0) {
+                            partyA.push(packages[i].raw);
+                        } else {
+                            partyB.push(packages[i].raw);
+                        }
+                    }
+                    
+                    // Render tables
+                    renderTable(partyA, dataTableA);
+                    renderTable(partyB, dataTableB);
+                    
+                    // Update stats
+                    totalRecords.textContent = packages.length;
+                    partyARecords.textContent = partyA.length;
+                    partyBRecords.textContent = partyB.length;
+                    statsContainer.style.display = 'block';
+                    
+                    // Hide progress bar
+                    processBtn.disabled = false;
+                    processBtn.classList.remove('processing');
+                }, 100);
+            }
+            
+            function updateProgress(current, total) {
+                const percent = Math.round((current / total) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressText.textContent = `Processing: ${percent}%`;
+            }
+            
+            function renderTable(data, table) {
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    // Add empty rows if no data
+                    for (let i = 0; i < 3; i++) {
+                        const row = document.createElement('tr');
+                        const td = document.createElement('td');
+                        td.innerHTML = '&nbsp;';
+                        row.appendChild(td);
+                        tbody.appendChild(row);
+                    }
+                    return;
+                }
+                
+                // Add data rows
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.textContent = item;
+                    row.appendChild(td);
+                    tbody.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
